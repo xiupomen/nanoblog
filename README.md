@@ -1,4 +1,4 @@
 # nanoblog
-a blog app
+a mini blog app
 
 testing playground
