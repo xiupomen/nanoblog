@@ -12,6 +12,7 @@
                 {% if user.last_seen %}<p>最近活动: {{ moment(user.last_seen).format('YYYY/M/D hh:mm') }}</p>{% endif %}
                 <p>{{ user.followers.count() }} 粉丝, {{ user.followed.count() }} 关注.</p>
                 {% if user == current_user %}
+                <p><a href="{{ url_for('main.messages') }}">{{current_user.new_messages()}}条新消息</a></p>
                 <p>{{user.email}}</p>
                 <p><a href="{{ url_for('main.edit_profile') }}">修改</a></p>
                 {% elif not current_user.is_following(user) %}
@@ -33,6 +34,25 @@
         </tr>
     </table>
     <hr>
+
+    {% if user != current_user %}
+    对&emsp;{{ user.username }}&emsp;说几句话吧~
+    <br>
+    <div class="row">
+        <div class="col-md-4">
+            <p>
+                <form action="{{ url_for('main.send_message', recipient=user.username) }}" method="post">
+                    {{ form_msg.hidden_tag() }}
+                    {{ form_msg.message(cols=64, rows=4)}}
+                    <br>
+                    {{ form_msg.submit(value='发射~', class_='btn btn-default') }}
+                </form>
+            </p>
+        </div>
+    </div>
+    <hr>
+    {% endif %}
+
     {% for post in posts %}
         {% include '_post.html' %}
     {% endfor %}

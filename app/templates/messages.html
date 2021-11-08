@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+    <h1>私信</h1>
+    {% for post in messages %}
+        {% include '_post.html' %}
+    {% endfor %}
+    {% include '_paged.html' %}
+
+{% endblock %}
