@@ -43,7 +43,7 @@ def index():
     next_url = url_for('main.index', page=posts.next_num) if posts.has_next else None
     prev_url = url_for('main.index', page=posts.prev_num) if posts.has_prev else None
     return render_template('index.html', title='首页', posts=posts.items, form=form,
-                           current_user=current_user, next_url=next_url, prev_url=prev_url)
+                        next_url=next_url, prev_url=prev_url)
 
 
 @bp.route('/explore')
@@ -54,7 +54,7 @@ def explore():
     next_url = url_for('main.explore', page=posts.next_num) if posts.has_next else None
     prev_url = url_for('main.explore', page=posts.prev_num) if posts.has_prev else None
     return render_template('index.html', title='发现', posts=posts.items,
-                           current_user=current_user, next_url=next_url, prev_url=prev_url)
+                           next_url=next_url, prev_url=prev_url)
 
 
 @bp.route('/user/<username>')
@@ -67,7 +67,7 @@ def user(username):
     prev_url = url_for('main.user', username=user.username, page=posts.prev_num) if posts.has_prev else None
     form = EmptyForm()
     return render_template('user.html', user=user, posts=posts.items, form=form,
-                           current_user=current_user, next_url=next_url, prev_url=prev_url)
+                            next_url=next_url, prev_url=prev_url)
 
 
 @bp.route('/edit_profile', methods=['GET', 'POST'])
@@ -152,4 +152,13 @@ def search():
         if page > 1 else None
     return render_template('search.html', title='搜索', posts=posts,
                            next_url=next_url, prev_url=prev_url)
+
+
+
+@bp.route('/user/<username>/popup')
+@login_required
+def user_popup(username):
+    user = User.query.filter_by(username=username).first_or_404()
+    form = EmptyForm()
+    return render_template('user_popup.html', user=user, form=form)
 
