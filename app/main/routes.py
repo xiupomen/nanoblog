@@ -39,7 +39,7 @@ def index():
         return redirect(url_for('main.index'))
 
     page = request.args.get('page', 1, type=int)
-    posts = current_user.followed_posts().paginate(page, current_app.config['POSTS_PER_PAGE'], False)
+    posts = current_user.followed_posts().filter(Post.parent_id.is_(None)).paginate(page, current_app.config['POSTS_PER_PAGE'], False)
     next_url = url_for('main.index', page=posts.next_num) if posts.has_next else None
     prev_url = url_for('main.index', page=posts.prev_num) if posts.has_prev else None
     return render_template('index.html', title='首页', posts=posts.items, form=form,
@@ -50,7 +50,7 @@ def index():
 @login_required
 def explore():
     page = request.args.get('page', 1, type=int)
-    posts = Post.query.order_by(Post.timestamp.desc()).paginate(page, current_app.config['POSTS_PER_PAGE'], False)
+    posts = Post.query.order_by(Post.timestamp.desc()).filter(Post.parent_id.is_(None)).paginate(page, current_app.config['POSTS_PER_PAGE'], False)
     next_url = url_for('main.explore', page=posts.next_num) if posts.has_next else None
     prev_url = url_for('main.explore', page=posts.prev_num) if posts.has_prev else None
     return render_template('index.html', title='发现', posts=posts.items,
@@ -62,7 +62,7 @@ def explore():
 def user(username):
     user = User.query.filter_by(username=username).first_or_404()
     page = request.args.get('page', 1, type=int)
-    posts = user.posts.order_by(Post.timestamp.desc()).paginate(page, current_app.config['POSTS_PER_PAGE'], False)
+    posts = user.posts.order_by(Post.timestamp.desc()).filter(Post.parent_id.is_(None)).paginate(page, current_app.config['POSTS_PER_PAGE'], False)
     next_url = url_for('main.user', username=user.username, page=posts.next_num) if posts.has_next else None
     prev_url = url_for('main.user', username=user.username, page=posts.prev_num) if posts.has_prev else None
     form = EmptyForm()
@@ -137,6 +137,24 @@ def delete_post():
         db.session.commit()
         return jsonify({'result': 'OK'})
     return jsonify({'result': 'error: not author'})
+
+
+from urllib.parse import urlparse, urljoin
+
+
+@bp.route('/reply_post/<postid>', methods=['GET', 'POST'])
+@login_required
+def reply_post(postid):
+    form = PostForm()
+    post = Post.query.filter_by(id=postid).first_or_404()
+    if form.validate_on_submit():
+        new_post = Post(body=form.post.data, author=current_user, parent=post)
+        db.session.add(new_post)
+        db.session.commit()
+        flash('发射成功 ~~~')
+        return redirect(request.referrer)
+
+    return render_template('reply_popup.html', post=post, form=form)
 
 
 @bp.route('/send_message/<recipient>', methods=['POST'])

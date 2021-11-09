@@ -69,11 +69,59 @@
     </div>
 {% endblock %}
 
+
+.popover{
+    max-width: 100%; /* Max Width of the popover (depending on the container!) */
+}
 {% block scripts %}
     {{ super() }}
     {{ moment.include_moment() }}
     {{ moment.lang("zh-CN") }}
     <script>
+        $(function() {
+            var timer = null;
+            var xhr = null;
+
+            $('.user_popup').hover(
+                function(event) {
+                    // mouse in event handler
+                    var elem = $(event.currentTarget);
+                    timer = setTimeout(function() {
+                        timer = null;
+                        xhr = $.ajax(
+                            '/user/' + elem.first().text().trim() + '/popup').done(
+                                function(data) {
+                                    xhr = null
+                                    elem.popover({
+                                        trigger: 'manual',
+                                        html: true,
+                                        animation: false,
+                                        container: elem,
+                                        content: data
+                                    }).popover('show');
+                                    flask_moment_render_all();
+                                    }
+                            );
+                    }, 1000);
+                },
+                function(event) {
+                    // mouse out event handler
+                    var elem = $(event.currentTarget);
+                    if (timer) {
+                        clearTimeout(timer);
+                        timer = null;
+                    }
+                    else if (xhr) {
+                        xhr.abort();
+                        xhr = null;
+                    }
+                    else {
+                        elem.popover('destroy');
+                    }
+                }
+            )
+        });
+
         function delete_post(postId, postElem) {
             $.post('/delete_post', {
                 postid: postId
@@ -84,51 +132,36 @@
             }).fail(function() {
             });
         }
-        $(function() {
-        var timer = null;
-        var xhr = null;
-        $('.user_popup').hover(
-            function(event) {
-                // mouse in event handler
-                var elem = $(event.currentTarget);
-                timer = setTimeout(function() {
-                    timer = null;
-                    xhr = $.ajax(
-                        '/user/' + elem.first().text().trim() + '/popup').done(
-                            function(data) {
-                                xhr = null
-                                elem.popover({
-                                    trigger: 'manual',
-                                    html: true,
-                                    animation: false,
-                                    container: elem,
-                                    content: data
-                                }).popover('show');
-                                flask_moment_render_all();
-                                }
-                        );
-                }, 1000);
-            },
-            function(event) {
-                // mouse out event handler
-                var elem = $(event.currentTarget);
-                if (timer) {
-                    clearTimeout(timer);
-                    timer = null;
-                }
-                else if (xhr) {
-                    xhr.abort();
-                    xhr = null;
-                }
-                else {
-                    elem.popover('destroy');
-                }
+        var popup_elem = null;
+        function reply_post(postId, elem) {
+            if(popup_elem) {
+                popup_elem.popover('destroy');
+                popup_elem = null
             }
-        )
-    });
-    function set_message_count(n) {
-        $('#message_count').text(n);
-        $('#message_count').css('visibility', n ? 'visible' : 'hidden');
-    }
+            popup_elem = $(elem)
+            $.ajax('/reply_post/' + postId).done(
+                    function(data) {
+                        popup_elem.popover({
+                            trigger: 'manual',
+                            html: true,
+                            animation: false,
+                            container: $('body'),
+                            content: data
+                        }).popover('show');
+                        flask_moment_render_all();
+                        }
+                );
+        }
+
+        function dismiss_popup() {
+            if(popup_elem) {
+                popup_elem.popover('destroy');
+                popup_elem = null
+            }
+        }
+        function set_message_count(n) {
+            $('#message_count').text(n);
+            $('#message_count').css('visibility', n ? 'visible' : 'hidden');
+        }
     </script>
 {% endblock %}

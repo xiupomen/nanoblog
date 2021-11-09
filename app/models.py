@@ -98,7 +98,13 @@ class Post(SearchableMixin, db.Model):
     body = db.Column(db.String(512))
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    parent_id = db.Column(db.Integer, db.ForeignKey('post.id'))
     language = db.Column(db.String(5))
+
+    # parent = db.relationship("Post", remote_side=[id], back_populates='sub_posts')
+    #
+    # sub_posts = db.relationship('Post', back_populates='parent')
+    parent = db.relationship('Post', remote_side=[id], backref=db.backref('sub_posts', lazy='dynamic'), uselist=False)
 
     def __repr__(self):
         return '<Post {}>'.format(self.body)

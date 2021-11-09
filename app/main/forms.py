@@ -43,6 +43,6 @@ class SearchForm(FlaskForm):
 
 
 class MessageForm(FlaskForm):
-    message = TextAreaField('消息', validators=[
+    message = TextAreaField('', validators=[
         DataRequired(), Length(min=0, max=512)])
     submit = SubmitField('发射~')

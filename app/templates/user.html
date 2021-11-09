@@ -36,21 +36,14 @@
     <hr>
 
     {% if user != current_user %}
-    对&emsp;{{ user.username }}&emsp;说几句话吧~
+    对&emsp;{{ user.username }}&emsp;说几句悄悄话吧~
     <br>
     <div class="row">
         <div class="col-md-4">
-            <p>
-                <form action="{{ url_for('main.send_message', recipient=user.username) }}" method="post">
-                    {{ form_msg.hidden_tag() }}
-                    {{ form_msg.message(cols=64, rows=4)}}
-                    <br>
-                    {{ form_msg.submit(value='发射~', class_='btn btn-default') }}
-                </form>
-            </p>
+            {{ wtf.quick_form(form_msg, action=url_for('main.send_message',recipient=user.username), method="post") }}
         </div>
     </div>
-    <hr>
+    <br>
     {% endif %}
 
     {% for post in posts %}

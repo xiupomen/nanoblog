@@ -1,16 +1,16 @@
-    <table class="table table-hover" id="post{{ post.id }}">
+    <table class="table table-hover" id="post{{ post.id }}" style="margin-bottom: 0px;">
         <tr>
-            <td width="70px">
+            <td width="32px">
                 <a href="{{ url_for('main.user', username=post.author.username) }}">
-                    <img src="{{ post.author.avatar(70) }}" />
+                    <img src="{{ post.author.avatar(32) }}" />
                 </a>
             </td>
             <td>
-                    <span class="user_popup">
-                        <a href="{{ url_for('main.user', username=post.author.username) }}">
-                            {{ post.author.username }}
-                        </a>
-                    </span>
+                <span class="user_popup">
+                    <a href="{{ url_for('main.user', username=post.author.username) }}">
+                        {{ post.author.username }}
+                    </a>
+                </span>
                 : ({{ moment(post.timestamp).fromNow() }})
                 {% if post.author == current_user %}
                     &emsp; <a href="javascript:delete_post(
@@ -19,6 +19,23 @@
                 {% endif %}
                 <br>
                 {{ post.body }}
+                <br>
+                <span class="reply_post" id="reply{{ post.id }}">
+                    <a href="javascript:reply_post(
+                                '{{ post.id }}',
+                                '#reply{{ post.id }}')">
+                        回复</a>
+                </span>
+                {% with sub_posts=post.sub_posts %}
+                {% if sub_posts %}
+                    <br>
+                    {% for sub_post in sub_posts %}
+                        {% with post=sub_post %}
+                            {% include '_post.html' %}
+                        {% endwith %}
+                    {% endfor %}
+                {% endif %}
+                {% endwith %}
             </td>
         </tr>
     </table>
