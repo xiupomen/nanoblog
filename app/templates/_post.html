@@ -18,7 +18,16 @@
                                 '#post{{ post.id }}')">删除</a>
                 {% endif %}
                 <br>
-                {{ post.body }}
+
+
+                {% for seg in post.rich_content() %}
+                {% if seg[0] %}
+                    <img style="max-width:200px;max-height:200px;" src="{{seg[1]}}"/>
+                {% else %}
+                    {{ seg[1] }}
+                {% endif %}
+                {% endfor %}
+
                 <br>
                 <span class="reply_post" id="reply{{ post.id }}">
                     <a href="javascript:reply_post(
@@ -29,10 +38,8 @@
                 {% with sub_posts=post.sub_posts %}
                 {% if sub_posts %}
                     <br>
-                    {% for sub_post in sub_posts %}
-                        {% with post=sub_post %}
-                            {% include '_post.html' %}
-                        {% endwith %}
+                    {% for post in sub_posts %}
+                        {% include '_post.html' %}
                     {% endfor %}
                 {% endif %}
                 {% endwith %}

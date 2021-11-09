@@ -9,6 +9,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from app import db, login
 from app.searchable import SearchableMixin
+from app.utils import find_urls, split_urls
 
 SearchableMixin.listen_db()
 
@@ -109,6 +110,12 @@ class Post(SearchableMixin, db.Model):
     def __repr__(self):
         return '<Post {}>'.format(self.body)
 
+    def rich_content(self):
+        urls = split_urls(self.body)
+        # if urls:
+        #     print(urls)
+        return urls
+
 
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -120,6 +127,8 @@ class Message(db.Model):
     def __repr__(self):
         return '<Message {}>'.format(self.body)
 
+    def rich_content(self):
+        return split_urls(self.body)
 
 ############################################################
 @login.user_loader

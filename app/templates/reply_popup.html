@@ -11,7 +11,14 @@
             </a>
             : ({{ moment(post.timestamp).fromNow() }})
             <br>
-            {{ post.body }}
+                {% for seg in post.rich_content() %}
+                {% if seg[0] %}
+                    <img style="max-width:200px;max-height:200px;" src="{{seg[1]}}"/>
+                {% else %}
+                    {{ seg[1] }}
+                {% endif %}
+                {% endfor %}
+
             <br>
         </td>
     </tr>

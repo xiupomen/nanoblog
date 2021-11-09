@@ -8,7 +8,7 @@ from app.models import User
 
 class EditProfileForm(FlaskForm):
     username = StringField('用户名', validators=[DataRequired()])
-    about_me = TextAreaField('简介', validators=[Length(min=0, max=256)])
+    about_me = TextAreaField('简介', validators=[Length(min=0, max=512)])
     submit = SubmitField('提交')
 
     def __init__(self, original_username, *args, **kwargs):
@@ -27,7 +27,7 @@ class EmptyForm(FlaskForm):
 
 
 class PostForm(FlaskForm):
-    post = TextAreaField('说点啥...', validators=[DataRequired(), Length(min=1, max=256)])
+    post = TextAreaField('说点啥...', validators=[DataRequired(), Length(min=1, max=512)])
     submit = SubmitField('发射 piu ~')
 
 
